@@ -1,7 +1,4 @@
 export default interface Color {
-  lux: number;
-  red: number;
-  green: number;
-  blue: number;
+  hitColor: string;
   timestamp?: string;
 }
