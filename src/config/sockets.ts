@@ -13,10 +13,13 @@ export default function initSockets(app: Express): { server: any; io: Server } {
 
   const gameService = new GameService(io);
 
-  io.on("connection", (socket) => {
+  io.on("connection", (socket : any) => {
     console.log(`User connected: ${socket.id}`);
     gameService.setupSocketListeners(socket);
   });
 
   return { server, io };
 }
+
+
+
