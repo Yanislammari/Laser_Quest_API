@@ -3,11 +3,11 @@ import cors from "cors";
 import gameRoutes from "./routes/game.routes";
 import initSockets from "./config/sockets";
 import userRoutes from "./routes/user.routes";
-import { initClientMqtt } from "./config/brokerMqtt";
+import MQTTService from "./services/MQTT/MQTT.service";
 
 const app = express();
 const { server, io } = initSockets(app);
-initClientMqtt();
+MQTTService.getInstance().connect();
 
 app.use(cors({
   origin: "*",
