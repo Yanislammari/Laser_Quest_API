@@ -4,13 +4,15 @@ import User from "../models/user";
 import jwt from "jsonwebtoken";
 import { TOKEN_KEY } from '../config/tokenKey';
 import { v4 as uuidv4 } from 'uuid';
-
+import UserMQTTService from "../services/MQTT/userMQTT.service";
 
 class UserController {
   private readonly userService: UserService;
+  private readonly userMQTTService: UserMQTTService;
 
   constructor() {
     this.userService = new UserService();
+    this.userMQTTService = new UserMQTTService();
   }
 
   async registerUser(req: Request, res: Response): Promise<void> {
@@ -73,12 +75,26 @@ class UserController {
 
   async getLasers(req: Request, res: Response): Promise<void> {
     try{
-      const lasers = req.body.user.lasers || [];
+      const lasers : string[] = req.body.user.lasers || [];
       if (lasers.length === 0) {
         res.status(404).json({ message: "No lasers found for this user." });
         return;
       }
-      res.status(200).json(lasers);
+      res.status(200);
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.write(`${JSON.stringify({lasers})}`);
+
+      const topicBaseSub = "esp32/status/";
+      const topicBasePub = "api/status/";
+      this.userMQTTService.addListenerForFront(topicBaseSub,res, lasers);
+      this.userMQTTService.sendCommandToListOfUuid(topicBasePub,lasers);
+
+      res.on('close', () => {
+        console.log("Connection closed, removing listeners.");
+        res.end();
+        this.userMQTTService.removeListenerForFront(topicBaseSub,res, lasers);
+      });
     }
     catch (error) {
       res.status(500).json({ error: "An error occurred while retrieving lasers." });
