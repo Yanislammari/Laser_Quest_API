@@ -1,7 +1,11 @@
 import mqtt from "mqtt";
 import { EventEmitter } from 'events';
+import dotenv from "dotenv";
 
-const mqttClient = mqtt.connect("mqtt://192.168.1.126:1883");
+dotenv.config();
+const MQTT_ADRESS = process.env.MQTT_ADRESS as string;
+
+const mqttClient = mqtt.connect(MQTT_ADRESS);
 const mqttEventBus = new EventEmitter();
 
 class MQTTService {
