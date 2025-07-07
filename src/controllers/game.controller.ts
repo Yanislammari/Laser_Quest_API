@@ -43,18 +43,16 @@ class GameController {
   }
 
   async updateColorDetected(req: Request, res: Response): Promise<void> {
-    try {      
-      const { id, hitColor } = req.body;
-      
-      if (id && hitColor) {
-        const colorData = { hitColor };
+    try {
+      console.log("[DEBUG] Requête POST /color reçue avec body :", req.body);
+      const { hitColor, laserId } = req.body;
+      if (hitColor && laserId) {
+        const colorData = { hitColor, laserId };
         await this.gameService.updateColorDetectedGlobal(colorData);
-      }
-      else {
+      } else {
         res.status(400).json({ error: "Invalid Format" });
         return;
       }
-      
       res.status(200).json({ message: "Color successfuly updated" });
     }
     catch (error) {

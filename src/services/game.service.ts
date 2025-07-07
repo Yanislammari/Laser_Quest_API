@@ -47,6 +47,7 @@ class GameService {
   }
 
   async updateColorDetectedGlobal(colorData: Color): Promise<void> {
+    console.log("[SERVICE] colorUpdateGlobal appelé avec :", colorData);
     const color = {
       ...colorData,
       timestamp: new Date().toISOString()
@@ -103,8 +104,10 @@ class GameService {
     socket.on("colorDetected", (data: any) => {      
       const color = {
         ...data,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        laserId: data.laserId
       };
+      console.log("[SOCKET] colorUpdate envoyé:", color);
       this.io.emit("colorUpdate", color);
     });
     
