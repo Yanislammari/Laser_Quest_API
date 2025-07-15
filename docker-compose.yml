@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: laser-quest-api
+    restart: always
+    ports:
+      - "3010:3000"
+    environment:
+      - PORT=3000
+      - DB_NAME=laserquest
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - TOKEN_KEY=supersecretkey
+      - MQTT_ADRESS=mqtt://mqtt:1883
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - mqtt
+
+  db:
+    image: postgres:15-alpine
+    container_name: laser-quest-db
+    restart: always
+    environment:
+      POSTGRES_DB: laserquest
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    container_name: laser-quest-mqtt
+    restart: always
+    ports:
+      - "1884:1883"
+      - "9001:9001"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_config:/mosquitto/config
+
+volumes:
+  db_data:
+  mosquitto_data:
+  mosquitto_config: 
